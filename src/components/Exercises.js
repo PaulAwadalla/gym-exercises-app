@@ -11,10 +11,10 @@ const Exercises = ({ fetchedExercises, setFetchedExercises, bodyPart }) => {
   const indexOflastExercise = currentPage * exercisePageCount;
   const indesxOffirstExercise = indexOflastExercise - exercisePageCount;
 
-  const currentExercise = fetchedExercises.slice(
-    indesxOffirstExercise,
-    indexOflastExercise
-  );
+  // Added a check to ensure fetchedExercises is an array
+  const currentExercise = Array.isArray(fetchedExercises)
+    ? fetchedExercises.slice(indesxOffirstExercise, indexOflastExercise)
+    : [];
 
   const pagePaginate = (event, value) => {
     setcurrentPage(value);
@@ -23,27 +23,41 @@ const Exercises = ({ fetchedExercises, setFetchedExercises, bodyPart }) => {
 
   useEffect(() => {
     const fetchExerciseData = async () => {
-      let exercisesData = [];
+      try {
+        let exercisesData = [];
 
-      if (bodyPart === "all") {
-        exercisesData = await fetchData(
-          "https://exercisedb.p.rapidapi.com/exercises",
-          optionsApi
-        );
-      } else {
-        exercisesData = await fetchData(
-          `https://exercisedb.p.rapidapi.com/exercises/bodyPart/${bodyPart}`,
-          optionsApi
-        );
+        if (bodyPart === "all") {
+          exercisesData = await fetchData(
+            "https://exercisedb.p.rapidapi.com/exercises",
+            optionsApi
+          );
+        } else {
+          exercisesData = await fetchData(
+            `https://exercisedb.p.rapidapi.com/exercises/bodyPart/${bodyPart}`,
+            optionsApi
+          );
+        }
+
+        // Log the fetched data to verify its structure
+        console.log("Fetched Exercises Data:", exercisesData);
+
+        // Set fetched exercises only if the data is valid
+        if (Array.isArray(exercisesData)) {
+          setFetchedExercises(exercisesData);
+        } else {
+          console.error("Invalid data format received:", exercisesData);
+        }
+      } catch (error) {
+        console.error("Error fetching exercise data:", error);
       }
-      setFetchedExercises(exercisesData);
     };
+
     fetchExerciseData();
-  }, [bodyPart]);
+  }, [bodyPart, setFetchedExercises]);
 
   return (
-    <Box id="exercises" sx={{ mt: { lg: "110px" } }} mt={"50px"} p={"20px"}>
-      <Typography variant="h3" mb={"46px"}>
+    <Box id='exercises' sx={{ mt: { lg: "110px" } }} mt={"50px"} p={"20px"}>
+      <Typography variant='h3' mb={"46px"}>
         Showing Exercises Results
       </Typography>
       <Stack
@@ -59,13 +73,13 @@ const Exercises = ({ fetchedExercises, setFetchedExercises, bodyPart }) => {
       <Stack mt={"100px"} alignItems={"center"}>
         {fetchedExercises.length > 9 && (
           <Pagination
-            color="standard"
-            shape="rounded"
+            color='standard'
+            shape='rounded'
             defaultPage={1}
             count={Math.ceil(fetchedExercises.length / exercisePageCount)}
             page={currentPage}
             onChange={pagePaginate}
-            size="large"
+            size='large'
           />
         )}
       </Stack>
