@@ -1,4 +1,4 @@
-console.log("API Key:", process.env.REACT_APP_RAPIDAPI_KEY);
+console.log("API Key:", process.env.REACT_APP_RAPID_API_KEY);
 
 export const fetchData = async (url, options) => {
   const response = await fetch(url, options);
